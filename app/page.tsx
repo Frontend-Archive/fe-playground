@@ -1,16 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import type { Archive } from "@/types/archive";
+import Archive from "@/components/archive/Archive";
+import type { Archive as ArchiveType } from "@/types/archive";
 
-const EXAMPLE_ARCHIVE: Archive[] = [
+const EXAMPLE_ARCHIVE: ArchiveType[] = [
   {
     author: "권시현",
     title:
@@ -45,33 +36,7 @@ export default function Home() {
       <main>
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {EXAMPLE_ARCHIVE.map((archive) => (
-            <Card
-              key={archive.url}
-              className="relative mx-auto w-full max-w-sm pt-0"
-            >
-              <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
-              <picture>
-                <img
-                  src="https://avatar.vercel.sh/shadcn1"
-                  alt="Event cover"
-                  className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
-                />
-              </picture>
-              <CardHeader>
-                <CardAction>
-                  {archive.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
-                </CardAction>
-                <CardTitle>{archive.title}</CardTitle>
-                <CardDescription>{archive.author}</CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <Button className="w-full">보러가기</Button>
-              </CardFooter>
-            </Card>
+            <Archive key={archive.url} archive={archive} />
           ))}
         </section>
       </main>
