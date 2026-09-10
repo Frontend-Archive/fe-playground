@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 import { getInitial, splitByQuery } from "@/lib/archive-utils";
+import { getSourceLabel } from "@/lib/link-preview";
 import { cn } from "@/lib/utils";
 import type { Article } from "@/types/archive";
 
@@ -21,6 +22,33 @@ function Highlight({ text, query }: { text: string; query: string }) {
         ),
       )}
     </>
+  );
+}
+
+/**
+ * 출처 라벨을 항상 깔아두고 그 위에 이미지를 덮는다.
+ * og:image 가 없거나 로딩에 실패해도 빈 칸 대신 출처가 남는다.
+ * 좁은 화면에서는 제목이 읽을 폭을 못 가져가서 통째로 접는다.
+ */
+function Thumbnail({ article }: { article: Article }) {
+  return (
+    <div className="relative hidden h-20 w-32 shrink-0 overflow-hidden rounded-lg border border-border/70 bg-muted sm:block">
+      <span className="absolute inset-0 flex items-center justify-center px-1 text-center font-mono text-[10px] text-muted-foreground uppercase tracking-wide">
+        {getSourceLabel(article.url)}
+      </span>
+
+      {article.image !== null && (
+        // biome-ignore lint/performance/noImgElement: 아카이브 링크의 호스트를 미리 알 수 없어 next/image remotePatterns 를 못 건다.
+        <img
+          src={article.image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+    </div>
   );
 }
 
@@ -73,6 +101,12 @@ export default function ArticleRow({
             </a>
           </h3>
 
+          {article.description !== null && (
+            <p className="mt-1.5 line-clamp-2 text-[13px] text-muted-foreground leading-relaxed">
+              <Highlight text={article.description} query={query} />
+            </p>
+          )}
+
           {article.tags.length > 0 && (
             <ul className="relative z-10 mt-2.5 flex flex-wrap gap-2">
               {article.tags.map((tag) => {
@@ -101,10 +135,12 @@ export default function ArticleRow({
           )}
         </div>
 
+        <Thumbnail article={article} />
+
         <ArrowUpRight
           aria-hidden
           strokeWidth={1.75}
-          className="mt-1 size-4 shrink-0 text-muted-foreground opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand group-hover:opacity-100"
+          className="mt-1 hidden size-4 shrink-0 text-muted-foreground opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand group-hover:opacity-100 sm:block"
         />
       </div>
     </li>

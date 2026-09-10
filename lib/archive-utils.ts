@@ -82,7 +82,13 @@ function matchesQuery(
   if (query === "") return true;
 
   const haystack = normalize(
-    [article.title, article.author, session.title, ...article.tags].join(" "),
+    [
+      article.title,
+      article.author,
+      article.description ?? "",
+      session.title,
+      ...article.tags,
+    ].join(" "),
   );
 
   return haystack.includes(query);

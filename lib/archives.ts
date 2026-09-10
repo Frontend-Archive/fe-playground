@@ -1,5 +1,6 @@
 import matter from "gray-matter";
 
+import { EMPTY_PREVIEW, getLinkPreview } from "@/lib/link-preview";
 import type {
   ArchiveMeetingType,
   ArchiveSession,
@@ -83,7 +84,33 @@ function toArticle(value: unknown): Article | null {
     title,
     url,
     tags: Array.isArray(tags) ? tags.filter(isNonEmptyString) : [],
+    ...EMPTY_PREVIEW,
   };
+}
+
+/**
+ * 링크 대상에서 og 태그를 긁어 아티클에 붙인다.
+ * 전부 병렬로 돌리고, 하나가 느리거나 죽어도 나머지는 그대로 간다.
+ */
+async function attachPreviews(
+  sessions: ArchiveSession[],
+): Promise<ArchiveSession[]> {
+  const articles = sessions.flatMap((session) => session.articles);
+  const previews = await Promise.all(
+    articles.map((article) => getLinkPreview(article.url)),
+  );
+
+  const byUrl = new Map(
+    articles.map((article, index) => [article.url, previews[index]]),
+  );
+
+  return sessions.map((session) => ({
+    ...session,
+    articles: session.articles.map((article) => ({
+      ...article,
+      ...(byUrl.get(article.url) ?? EMPTY_PREVIEW),
+    })),
+  }));
 }
 
 function toSession(data: unknown): ArchiveSession | null {
@@ -129,7 +156,9 @@ export async function getArchiveSessions(): Promise<ArchiveSession[]> {
     }),
   );
 
-  return sessions
+  const parsed = sessions
     .filter((session): session is ArchiveSession => session !== null)
     .sort((a, b) => b.date.localeCompare(a.date));
+
+  return attachPreviews(parsed);
 }
