@@ -93,7 +93,7 @@ export default function ArticleRow({
             <a
               href={article.url}
               target="_blank"
-              rel="noreferrer noopener"
+              rel="noopener"
               className="rounded-sm outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:outline-2 focus-visible:after:outline-brand focus-visible:after:outline-offset-2"
             >
               <Highlight text={article.title} query={query} />

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+import { buildSocialMetadata, SITE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const sans = IBM_Plex_Sans({
@@ -18,10 +19,41 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+/** 아카이브를 못 읽었을 때만 쓰이는 설명. 정상 경로에서는 page 가 실제 수치로 덮는다. */
+const FALLBACK_DESCRIPTION = `${SITE.tagline}. 회차별로 정리하고 멤버·태그로 골라 볼 수 있습니다.`;
+
 export const metadata: Metadata = {
-  title: "개발자들의 발자취 | Frontend Archive",
-  description:
-    "프론트엔드 스터디의 회차별 아티클 아카이브. 멤버와 태그로 골라 보세요.",
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: `${SITE.name} | ${SITE.tagline}`,
+    template: `%s | ${SITE.name}`,
+  },
+  description: FALLBACK_DESCRIPTION,
+  applicationName: SITE.name,
+  category: "technology",
+  keywords: [
+    "프론트엔드",
+    "프론트엔드 스터디",
+    "개발 블로그 모음",
+    "아티클 아카이브",
+    "React",
+    "TypeScript",
+    "디자인 패턴",
+    "성능 최적화",
+  ],
+  alternates: { canonical: "/" },
+  ...buildSocialMetadata(FALLBACK_DESCRIPTION),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+import { cache } from "react";
 
 import { EMPTY_PREVIEW, getLinkPreview } from "@/lib/link-preview";
 import type {
@@ -142,7 +143,7 @@ function toSession(data: unknown): ArchiveSession | null {
  * 원본 레포의 archives 디렉토리를 읽어 회차 목록을 최신순으로 돌려준다.
  * 파일 하나가 깨져도 나머지 회차는 살린다.
  */
-export async function getArchiveSessions(): Promise<ArchiveSession[]> {
+async function loadArchiveSessions(): Promise<ArchiveSession[]> {
   const files = await listArchiveFiles();
 
   const sessions = await Promise.all(
@@ -162,3 +163,9 @@ export async function getArchiveSessions(): Promise<ArchiveSession[]> {
 
   return attachPreviews(parsed);
 }
+
+/**
+ * generateMetadata 와 페이지 본문이 각각 부르므로 요청 단위로 묶는다.
+ * fetch 는 어차피 캐시되지만 파싱까지 두 번 할 이유는 없다.
+ */
+export const getArchiveSessions = cache(loadArchiveSessions);
